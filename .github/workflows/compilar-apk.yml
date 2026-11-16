@@ -75,6 +75,14 @@ jobs:
           cat patches/v15/{01,02,03}.b64 | base64 --decode > /tmp/reas_v15.diff.xz
           echo "4ef4fd5a6655f352d359ebce4cd01c8fc9e05f183f095cbeb41f94eed06413e8  /tmp/reas_v15.diff.xz" | sha256sum --check
           xz --decompress --stdout /tmp/reas_v15.diff.xz | patch --batch -p1
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path("app/src/main/java/cl/fusat/reas/MainActivity.java")
+          s=path.read_text()
+          duplicate="    private static double grossView(double storedNet,int mask,int bit) {return storedNet+((mask&bit)!=0?8:0);}"+"\\n"
+          assert s.count(duplicate)==1, "No se encontró método antiguo duplicado"
+          path.write_text(s.replace(duplicate,"",1))
+          PY
           sed -i "s/versionCode 6/versionCode 7/; s/versionName '1.4'/versionName '1.5'/" app/build.gradle
           test -f app/src/main/java/cl/fusat/reas/WeightPolicy.java
           grep -q 'VERSION = 4' app/src/main/java/cl/fusat/reas/Db.java
