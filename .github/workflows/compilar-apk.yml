@@ -51,16 +51,27 @@ jobs:
           sed -i "s/versionCode 3/versionCode 4/; s/versionName '1.2'/versionName '1.2.1'/" app/build.gradle
           grep -q 'versionCode 4' app/build.gradle
           test -f app/src/main/java/cl/fusat/reas/BackupImporter.java
+          base64 --decode patches/v13_layout.diff.xz.b64 > /tmp/reas_v13_layout.diff.xz
+          echo "57a7fd44662c4d898d0b1c0c0239ce8528c5b9a0bdd4742b25644b87764f8c31  /tmp/reas_v13_layout.diff.xz" | sha256sum --check
+          xz --decompress --stdout /tmp/reas_v13_layout.diff.xz | patch --batch -p1
+          sed -i "s/versionCode 4/versionCode 5/; s/versionName '1.2.1'/versionName '1.3'/" app/build.gradle
+          grep -q 'versionCode 5' app/build.gradle
+          grep -q 'addTab(tabs,"Especiales"' app/src/main/java/cl/fusat/reas/MainActivity.java
+          grep -q 'TAB_YELLOW' app/src/main/java/cl/fusat/reas/MainActivity.java
+          grep -q 'TAB_RED' app/src/main/java/cl/fusat/reas/MainActivity.java
+          ! grep -q 'Ingresa la procedencia del residuo' app/src/main/java/cl/fusat/reas/MainActivity.java
+          ! grep -q 'e.origin.isEmpty()' app/src/main/java/cl/fusat/reas/BackupImporter.java
+
       - name: Preparar archivo fuente para revision
         shell: bash
         run: |
-          tar -czf /tmp/REAS_Fuentes_v1.2.tar.gz app build.gradle settings.gradle gradle.properties
+          tar -czf /tmp/REAS_Fuentes_v1.3.tar.gz app build.gradle settings.gradle gradle.properties
 
       - name: Publicar archivo fuente para revision
         uses: actions/upload-artifact@v4
         with:
-          name: REAS-Fuentes-v1.2
-          path: /tmp/REAS_Fuentes_v1.2.tar.gz
+          name: REAS-Fuentes-v1.3
+          path: /tmp/REAS_Fuentes_v1.3.tar.gz
           if-no-files-found: error
           retention-days: 3
 
