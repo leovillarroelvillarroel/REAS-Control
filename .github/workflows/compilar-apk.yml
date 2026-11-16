@@ -79,7 +79,7 @@ jobs:
           from pathlib import Path
           path=Path("app/src/main/java/cl/fusat/reas/MainActivity.java")
           s=path.read_text()
-          duplicate="    private static double grossView(double storedNet,int mask,int bit) {return storedNet+((mask&bit)!=0?8:0);}"+"\\n"
+          duplicate="    private static double grossView(double storedNet,int mask,int bit) {return storedNet+((mask&bit)!=0?8:0);}"+"\n"
           assert s.count(duplicate)==1, "No se encontró método antiguo duplicado"
           path.write_text(s.replace(duplicate,"",1))
           PY
