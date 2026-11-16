@@ -39,16 +39,22 @@ jobs:
           grep -q 'android:label="REAS"' app/src/main/AndroidManifest.xml
           grep -q 'versionCode 2' app/build.gradle
           test -f app/src/main/res/drawable/ic_reas.xml
+          cat patches/v12/{01,02,03,04,05}.b64 | base64 --decode > /tmp/reas_v12.diff.xz
+          echo "5a1f7d3ec2b7b4669cbdb5cf61e288fbf020aaddeb7417b766aa2db6e289157b  /tmp/reas_v12.diff.xz" | sha256sum --check
+          xz --decompress --stdout /tmp/reas_v12.diff.xz | patch --batch -p1
+          sed -i "s/versionCode 2/versionCode 3/; s/versionName '1.1'/versionName '1.2'/" app/build.gradle
+          grep -q 'VERSION = 2' app/src/main/java/cl/fusat/reas/Db.java
+          grep -q 'versionCode 3' app/build.gradle
       - name: Preparar archivo fuente para revision
         shell: bash
         run: |
-          tar -czf /tmp/REAS_Fuentes_v1.1.tar.gz app build.gradle settings.gradle gradle.properties
+          tar -czf /tmp/REAS_Fuentes_v1.2.tar.gz app build.gradle settings.gradle gradle.properties
 
       - name: Publicar archivo fuente para revision
         uses: actions/upload-artifact@v4
         with:
-          name: REAS-Fuentes-v1.1
-          path: /tmp/REAS_Fuentes_v1.1.tar.gz
+          name: REAS-Fuentes-v1.2
+          path: /tmp/REAS_Fuentes_v1.2.tar.gz
           if-no-files-found: error
           retention-days: 3
 
