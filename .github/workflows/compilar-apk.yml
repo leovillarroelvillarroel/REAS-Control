@@ -2,6 +2,8 @@ name: Compilar APK Android REAS
 on:
   push:
     branches: [main]
+    paths:
+      - '.github/workflows/compilar-apk.yml'
   workflow_dispatch:
 
 concurrency:
