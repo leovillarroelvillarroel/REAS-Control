@@ -22,6 +22,14 @@ jobs:
           tar -xJf reas_sources.tar.xz
           test -f app/src/main/AndroidManifest.xml
           test -f app/src/main/java/cl/fusat/reas/MainActivity.java
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app/src/main/java/cl/fusat/reas/PdfSupport.java")
+          s = p.read_text()
+          assert "7.1,false,DARK" in s and "6.5,true,DARK" in s
+          s = s.replace("7.1,false,DARK", "7.1f,false,DARK").replace("6.5,true,DARK", "6.5f,true,DARK")
+          p.write_text(s)
+          PY
 
       - name: Instalar Java 17
         uses: actions/setup-java@v4
