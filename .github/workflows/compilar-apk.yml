@@ -105,19 +105,30 @@ jobs:
           grep -q 'weekKey(' app/src/main/java/cl/fusat/reas/XlsxExporter.java
           grep -q 'REAS · RESUMEN ' app/src/main/java/cl/fusat/reas/PdfSupport.java
           grep -q 'historyCategory(' app/src/main/java/cl/fusat/reas/MainActivity.java
+          base64 --decode patches/v18_split_kg_pilas.diff.xz.b64 > /tmp/reas_v18.patch.xz
+          echo "79e1d4e4a6f4e38be0474511cb7b569bc0b1a135eca8525cdff3d0e8af3ef3ec  /tmp/reas_v18.patch.xz" | sha256sum --check
+          xz --decompress --stdout /tmp/reas_v18.patch.xz | patch --batch -p1
+          grep -q 'versionCode 10' app/build.gradle
+          grep -q "versionName '1.8'" app/build.gradle
+          grep -q 'VERSION = 6' app/src/main/java/cl/fusat/reas/Db.java
+          grep -q '"Pilas"' app/src/main/java/cl/fusat/reas/Hazard.java
+          grep -q 'dailyReceipt(' app/src/main/java/cl/fusat/reas/PdfSupport.java
+          grep -q '"Kg bolsas"' app/src/main/java/cl/fusat/reas/XlsxExporter.java
+          grep -q '"Kg cajas"' app/src/main/java/cl/fusat/reas/XlsxExporter.java
+          test -f app/src/main/java/cl/fusat/reas/WeightPolicy.java
 
 
 
       - name: Preparar archivo fuente para revision
         shell: bash
         run: |
-          tar -czf /tmp/REAS_Fuentes_v1.7.tar.gz app build.gradle settings.gradle gradle.properties
+          tar -czf /tmp/REAS_Fuentes_v1.8.tar.gz app build.gradle settings.gradle gradle.properties
 
       - name: Publicar archivo fuente para revision
         uses: actions/upload-artifact@v4
         with:
-          name: REAS-Fuentes-v1.7
-          path: /tmp/REAS_Fuentes_v1.7.tar.gz
+          name: REAS-Fuentes-v1.8
+          path: /tmp/REAS_Fuentes_v1.8.tar.gz
           if-no-files-found: error
           retention-days: 3
 
