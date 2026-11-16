@@ -45,6 +45,12 @@ jobs:
           sed -i "s/versionCode 2/versionCode 3/; s/versionName '1.1'/versionName '1.2'/" app/build.gradle
           grep -q 'VERSION = 2' app/src/main/java/cl/fusat/reas/Db.java
           grep -q 'versionCode 3' app/build.gradle
+          cat patches/v121.b64 | base64 --decode > /tmp/reas_v121.diff.xz
+          echo "6d9c5fb6e017bf61e48ddcb5c0692ce2b517e0d70a977020092235fe20a89490  /tmp/reas_v121.diff.xz" | sha256sum --check
+          xz --decompress --stdout /tmp/reas_v121.diff.xz | patch --batch -p1
+          sed -i "s/versionCode 3/versionCode 4/; s/versionName '1.2'/versionName '1.2.1'/" app/build.gradle
+          grep -q 'versionCode 4' app/build.gradle
+          test -f app/src/main/java/cl/fusat/reas/BackupImporter.java
       - name: Preparar archivo fuente para revision
         shell: bash
         run: |
