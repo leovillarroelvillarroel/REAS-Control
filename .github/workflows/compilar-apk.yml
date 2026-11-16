@@ -4,6 +4,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: reas-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,6 +34,11 @@ jobs:
           s = s.replace("7.1,false,DARK", "7.1f,false,DARK").replace("6.5,true,DARK", "6.5f,true,DARK")
           p.write_text(s)
           PY
+          base64 --decode patches/REAS_UI_v2.py.xz.b64 | xz --decompress > /tmp/REAS_UI_v2.py
+          python3 /tmp/REAS_UI_v2.py
+          grep -q 'android:label="REAS"' app/src/main/AndroidManifest.xml
+          grep -q 'versionCode 2' app/build.gradle
+          test -f app/src/main/res/drawable/ic_reas.xml
 
       - name: Instalar Java 17
         uses: actions/setup-java@v4
