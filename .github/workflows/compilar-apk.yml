@@ -39,6 +39,19 @@ jobs:
           grep -q 'android:label="REAS"' app/src/main/AndroidManifest.xml
           grep -q 'versionCode 2' app/build.gradle
           test -f app/src/main/res/drawable/ic_reas.xml
+      - name: Preparar archivo fuente para revision
+        shell: bash
+        run: |
+          tar -czf /tmp/REAS_Fuentes_v1.1.tar.gz app build.gradle settings.gradle gradle.properties
+
+      - name: Publicar archivo fuente para revision
+        uses: actions/upload-artifact@v4
+        with:
+          name: REAS-Fuentes-v1.1
+          path: /tmp/REAS_Fuentes_v1.1.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
 
       - name: Instalar Java 17
         uses: actions/setup-java@v4
