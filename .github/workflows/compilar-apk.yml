@@ -85,6 +85,15 @@ jobs:
           PY
           sed -i "s/versionCode 6/versionCode 7/; s/versionName '1.4'/versionName '1.5'/" app/build.gradle
           test -f app/src/main/java/cl/fusat/reas/WeightPolicy.java
+
+          cat patches/v19/{01,02,03}.b64 | base64 --decode > /tmp/reas_v19.diff.xz
+          echo "9d1cfca2fd362fc3dce0b53b8305f0448a77eec0b448ea579f29b309c5d5ff00  /tmp/reas_v19.diff.xz" | sha256sum --check
+          xz --decompress --stdout /tmp/reas_v19.diff.xz | patch --batch -p1
+          grep -q 'versionCode 11' app/build.gradle
+          grep -q "versionName '1.9'" app/build.gradle
+          grep -q 'kgInputs\[i\]=hazardNumberCell' app/src/main/java/cl/fusat/reas/MainActivity.java
+          grep -q 'Pesaje individual por residuo' app/src/main/java/cl/fusat/reas/PdfSupport.java
+          ! grep -q 'weightFields(' app/src/main/java/cl/fusat/reas/MainActivity.java
           grep -q 'VERSION = 4' app/src/main/java/cl/fusat/reas/Db.java
           grep -q 'versionCode 7' app/build.gradle
           base64 --decode patches/v16_peso_unico_zoom.diff.xz.b64 > /tmp/reas_v16.diff.xz
@@ -122,13 +131,13 @@ jobs:
       - name: Preparar archivo fuente para revision
         shell: bash
         run: |
-          tar -czf /tmp/REAS_Fuentes_v1.8.tar.gz app build.gradle settings.gradle gradle.properties
+          tar -czf /tmp/REAS_Fuentes_v1.9.tar.gz app build.gradle settings.gradle gradle.properties
 
       - name: Publicar archivo fuente para revision
         uses: actions/upload-artifact@v4
         with:
-          name: REAS-Fuentes-v1.8
-          path: /tmp/REAS_Fuentes_v1.8.tar.gz
+          name: REAS-Fuentes-v1.9
+          path: /tmp/REAS_Fuentes_v1.9.tar.gz
           if-no-files-found: error
           retention-days: 3
 
