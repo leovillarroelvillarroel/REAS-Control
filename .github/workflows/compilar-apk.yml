@@ -1,0 +1,60 @@
+name: Compilar APK Android REAS
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Obtener codigo fuente
+        uses: actions/checkout@v4
+
+      - name: Reconstruir y verificar proyecto
+        shell: bash
+        run: |
+          cat bundle/{01,02,03,04,05,06}.b64 | base64 --decode > reas_sources.tar.xz
+          echo "d1a464a23daf2381e1aaa000b240433d2d0fbc464236f4ca60cc2492aa06f528  reas_sources.tar.xz" | sha256sum --check
+          tar -xJf reas_sources.tar.xz
+          test -f app/src/main/AndroidManifest.xml
+          test -f app/src/main/java/cl/fusat/reas/MainActivity.java
+
+      - name: Instalar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar API 35
+        shell: bash
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Preparar Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Compilar APK instalable
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Comprobar APK generado
+        shell: bash
+        run: |
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          file app/build/outputs/apk/debug/app-debug.apk
+          sha256sum app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publicar APK descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: REAS-Control-APK-Instalable
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
