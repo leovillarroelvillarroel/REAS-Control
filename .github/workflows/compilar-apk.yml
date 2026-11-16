@@ -87,19 +87,28 @@ jobs:
           test -f app/src/main/java/cl/fusat/reas/WeightPolicy.java
           grep -q 'VERSION = 4' app/src/main/java/cl/fusat/reas/Db.java
           grep -q 'versionCode 7' app/build.gradle
+          base64 --decode patches/v16_peso_unico_zoom.diff.xz.b64 > /tmp/reas_v16.diff.xz
+          echo "ce489956554d39fc854550bf8f6ea8615772f1d89e3a8a9e522fba116b81bdfe  /tmp/reas_v16.diff.xz" | sha256sum --check
+          xz --decompress --stdout /tmp/reas_v16.diff.xz | patch --batch -p1
+          grep -q 'versionCode 8' app/build.gradle
+          grep -q 'VERSION = 5' app/src/main/java/cl/fusat/reas/Db.java
+          grep -q 'Zoom +' app/src/main/java/cl/fusat/reas/PdfPreviewActivity.java
+          grep -q 'KILOS TOTALES BRUTOS DEL CONTENEDOR' app/src/main/java/cl/fusat/reas/MainActivity.java
+          ! grep -q 'input("Peoneta"' app/src/main/java/cl/fusat/reas/MainActivity.java
+          ! grep -q 'input("Patente' app/src/main/java/cl/fusat/reas/MainActivity.java
           grep -q 'new String\[\]{"Sólido","Líquido"}' app/src/main/java/cl/fusat/reas/MainActivity.java
 
 
       - name: Preparar archivo fuente para revision
         shell: bash
         run: |
-          tar -czf /tmp/REAS_Fuentes_v1.5.tar.gz app build.gradle settings.gradle gradle.properties
+          tar -czf /tmp/REAS_Fuentes_v1.6.tar.gz app build.gradle settings.gradle gradle.properties
 
       - name: Publicar archivo fuente para revision
         uses: actions/upload-artifact@v4
         with:
-          name: REAS-Fuentes-v1.5
-          path: /tmp/REAS_Fuentes_v1.5.tar.gz
+          name: REAS-Fuentes-v1.6
+          path: /tmp/REAS_Fuentes_v1.6.tar.gz
           if-no-files-found: error
           retention-days: 3
 
